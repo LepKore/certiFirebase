@@ -39,3 +39,17 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# firebase
+.firebase/
+firebase-debug.log*
+firestore-debug.log*
+ui-debug.log*
+database-debug.log*
+*.runtimeconfig.json
+serviceAccountKey*.json
+
+# agent state / tooling
+.opencode/
+.agents/
+.claude/
