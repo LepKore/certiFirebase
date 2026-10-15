@@ -1,0 +1,23 @@
+rules_version = '2';
+
+// Sitio corporativo de solo lectura publica: el cliente envia pedidos y reservas
+// a Firestore. En produccion lo correcto es mover la escritura a Cloud Functions
+// y protegerla con App Check; estas reglas permiten escritura desde el navegador.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /pedidos/{pedidoId} {
+      allow create: if request.resource.data.nombre is string
+                    && request.resource.data.telefono is string
+                    && request.resource.data.total is number;
+      allow read, update, delete: if false;
+    }
+
+    match /reservas/{reservaId} {
+      allow create: if request.resource.data.nombre is string
+                    && request.resource.data.telefono is string
+                    && request.resource.data.fecha is string
+                    && request.resource.data.comensales is number;
+      allow read, update, delete: if false;
+    }
+  }
+}
