@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { restaurante, valoracion } from "@/lib/restaurant";
 
 export default function Hero() {
@@ -28,16 +29,16 @@ export default function Hero() {
             ★★★★★
           </span>
           <strong>{valoracion.estrellas}</strong>
-          <span>({valoracion.resenas} resenas)</span>
+          <span>({valoracion.resenas} reseñas)</span>
         </p>
 
         <div className="mt-2 flex flex-col gap-3 sm:flex-row">
           <a href="#menu" className="btn-primario">
-            Ver el menu
+            Ver el menú
           </a>
-          <a href="#reserva" className="btn-secundario">
-            Reservar mesa
-          </a>
+          <Link href="/pedidos" className="btn-secundario">
+            Ver mis pedidos
+          </Link>
         </div>
       </div>
     </section>

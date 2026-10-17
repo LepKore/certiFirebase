@@ -1,4 +1,4 @@
-﻿import type { Categoria, MenuItem } from "./types";
+import type { Categoria, MenuItem } from "./types";
 
 export const categorias: { id: Categoria; label: string }[] = [
   { id: "entrantes", label: "Entrantes" },

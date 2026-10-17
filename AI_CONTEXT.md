@@ -1,116 +1,51 @@
-# AI_CONTEXT.md
+# Contexto del proyecto
 
-Contexto para agentes de IA que trabajan en este repositorio.
-Todo lo que aquí afirma es **verificable en el código** salvo que esté marcado como
-`PENDIENTE: requiring user input`.
+> Última verificación: 2026-10-17
 
-## 1. Project Overview
+## 1. Propósito del proyecto
+App de pedidos anticipados para un restaurante (proyecto académico): catálogo desde la API, carrito, creación de pedidos e historial, conectada al backend Express mediante `NEXT_PUBLIC_API_URL`.
+Audiencia / uso: demostración académica.
 
-- **Qué es**: landing page de una sola página para el restaurante ficticio **Ratatouille**
-  (Next.js App Router, export estático a Firebase Hosting). Permite **ver el menú** con filtros y
-  búsqueda, **añadir platos al carrito y hacer un pedido**, **reservar mesa** e **información**
-  del restaurante (ubicación, horarios, contacto).
-- **Funcionalidades**: menú filtrable, carrito persistido en `localStorage`, formulario de pedido,
-  formulario de reserva y ficha del restaurante.
-- **Sin** autenticación, panel de admin, pagos ni backend propio: es una demo.
-- **Idioma de la UI**: español. **Idioma de skills/agentes**: español.
+## 2. Stack tecnológico y arquitectura
+Frontend: Next.js 16.4.1, React 19, TypeScript y Tailwind CSS v4.
+Tests: Vitest 3 + Testing Library (`vitest run`).
+Backend remoto: API Express + PostgreSQL.
+Hosting: Firebase Hosting mediante export estático en `out/`.
 
-## 2. Tech Stack
+## 3. Estructura del proyecto
+/app/page.tsx: inicio (hero + pedidos).
+/app/pedidos/page.tsx: historial de pedidos guardados en el backend.
+/app/admin/page.tsx: login, administración CRUD de productos y listado de pedidos con cancelación.
+/components/pedidos/PedidoSection.tsx: catálogo, carrito (persistido en `localStorage`, clave `ratatouille-carrito`, solo `productoId` y `cantidad`) y formulario de pedido controlado.
+/lib/use-es-cliente.ts: hook que devuelve `false` durante el prerenderizado y la hidratación; permite leer almacenamiento del navegador sin errores de hidratación.
+/lib/api.ts: cliente HTTP con manejo de errores (`api.listarPedidos`, `api.crearPedido`, `api.cancelarPedido`).
+/lib/types.ts: tipo `Producto`, `PedidoGuardado` y tipos heredados del diseño.
+/app/not-found.tsx: página 404 en español.
+/tests/: tests de `lib/api.ts`, `PedidoSection`, historial y panel administrativo (31 casos).
+/components/carrito, /components/sections/SeccionPedido.tsx y SeccionReserva.tsx: código heredado del diseño de landing anterior; ya no se usan (el carrito actual vive en `components/pedidos`).
+/hooks/verificar-tests-antes-de-push.ts: hook de OpenCode que bloquea `git push` si `npm test` falla; se registra en `opencode.jsonc`.
+/.github/workflows: build, tests, lint y deploy a Firebase; inyecta `NEXT_PUBLIC_API_URL` desde GitHub Secrets.
+Nota para IA: no almacenar credenciales ni secretos en el bundle, en este archivo ni en los tests.
 
-| Capa | Tecnología |
-|---|---|
-| Framework | Next.js `16.4.1` (App Router, Turbopack) |
-| UI | React `19.3.0` |
-| Estilos | Tailwind CSS v4 vía `@tailwindcss/turbopack` (cargado con reglas de Turbopack en `next.config.ts`) |
-| Lenguaje | TypeScript `^5` |
-| Lint | ESLint 9 (`eslint-config-next` 16.4.1), flat config en `eslint.config.mjs` |
-| Hosting | Firebase Hosting (`firebase.json`) |
+## 4. Comandos críticos
+Desarrollo: `npm run dev`.
+Tests: `npm test`.
+Build: `npm run build`.
+Lint: `npm run lint`.
+Typecheck: `npx tsc --noEmit`.
+Deploy: push a `main` (informativo; requiere confirmación).
 
-## 3. Architecture
+## 5. Reglas y convenciones estrictas
+`output: "export"` debe mantenerse: no usar SSR, Server Actions ni rutas dinámicas.
+`hooks/` está excluido de `tsconfig.json` porque usa la API de plugins de OpenCode.
+La URL `NEXT_PUBLIC_API_URL` es pública por necesidad del navegador; los secretos pertenecen al backend.
+Ningún test debe usar datos reales de la base de datos: se sustituyen `pool` y repositorio en la caché de módulos.
+No leer `localStorage` ni `sessionStorage` durante el render:(con `useEsCliente`) o React reporta error de hidratación. Por eso el token de admin y el carrito se leen en el inicializador del `useState` y solo se pintan cuando `esCliente` es `true`.
+El formulario de pedido es controlado: nunca usar `evento.currentTarget` después de un `await` (React lo anula) ni `form.reset()`.
+Cada página aporta su propio `<main>`: el layout solo envuelve en un `div`.
+Ficheros en UTF-8 sin BOM y con tildes correctas; comprobado con un barrido de mojibake (`Ã` + byte alto).
 
-```
-app/
-  layout.tsx                     # metadata, Navigation, CarritoProvider y footer
-  page.tsx                       # compone las secciones de la landing
-  globals.css                    # tema Tailwind v4 (@theme) + componentes (.btn, .card, .campo)
-components/
-  Navigation.tsx                 # cabecera fija con anclas y menú móvil
-  carrito/
-    CarritoProvider.tsx          # contexto + useReducer + persistencia en localStorage
-    BotonCarrito.tsx             # botón con contador de unidades
-    PanelCarrito.tsx             # drawer lateral con líneas y total
-  sections/
-    Hero.tsx  SobreNos.tsx  MenuSection.tsx
-    SeccionPedido.tsx  SeccionReserva.tsx  Informacion.tsx
-lib/
-  restaurant.ts                  # datos del restaurante y horarios (editar aquí)
-  menu.ts                        # carta de platos y helpers (euros, total)
-  types.ts                       # MenuItem, LineaPedido, Pedido, Reserva
-  firebase.ts                    # init perezosa del SDK + flag firebaseConfigurado
-  pedidos.ts / reservas.ts       # addDoc a Firestore, con fallback a localStorage
-public/
-out/                             # artefacto de `next build` (ignorado por git)
-```
-
-- **Rutas**: solo `/` y `/_not-found`, ambas estáticas (`○ (Static)`).
-- `MenuSection`, `SeccionPedido`, `SeccionReserva` y el carrito son **Client Components**
-  (el sitio es 100 % estático, no hay servidor al que llamar).
-- **Cambiar el contenido del restaurante** se hace en `lib/restaurant.ts` (nombre, dirección,
-  horarios, teléfono) y en `lib/menu.ts` (carta). No hay CMS.
-- `CarritoProvider` vive en `app/layout.tsx` para que todo el árbol de la página acceda al
-  contexto (si se deja dentro de `Navigation`, las secciones que están fuera fallarían).
-
-## 4. Conventions & Constraints
-
-### Restricción crítica: `output: "export"`
-
-`next.config.ts` fija `output: "export"`. Esto implica:
-
-- El build debe ser **100 % estático**: nada de SSR, ISR, Server Actions ni rutas dinámicas.
-- **`cacheComponents: true` (PPR) es incompatible** con export; falla con
-  `Invariant: PPR cannot be enabled in export mode`. Por eso está comentado en
-  `next.config.ts`, junto con `partialPrefetching` (que solo aplica con cache components).
-  No volver a activarlos mientras `output: "export"` siga activo.
-- El resultado del build se publica desde `out/`, que es el `public` de Firebase Hosting.
-- `firebase.json` define un catch-all rewrite `** -> /index.html`, es decir una SPA.
-  `PENDIENTE: requiring user input` — ¿es intencional ese rewrite, o se prefiere 404 real?
-
-### Reglas de Firebase
-
-- **Nunca commitear** claves de servicio: `*.runtimeconfig.json`, `serviceAccountKey*.json`,
-  `.firebase/`, ni logs `firebase-debug.log*`. Ya están en `.gitignore`.
-- El SDK web se inicializa en `lib/firebase.ts` con variables `NEXT_PUBLIC_FIREBASE_*`.
-  Copia `.env.example` a `.env.local` para activarlo. **Sin esas variables el sitio sigue
-  funcionando**: pedidos y reservas se guardan solo en `localStorage` y la UI avisa al usuario.
-- `firestore.rules` permite `create` (nada más) en `pedidos` y `reservas` con validación mínima
-  de tipos. Aceptable para una demo; **en producción** la escritura debe moverse a Cloud
-  Functions y protegerse con App Check.
-- `.firebaserc` sí está versionado (apunta a `certiserver-42d9b`).
-- CI: `.github/workflows/firebase-hosting-merge.yml` (despliega en push a main) y
-  `firebase-hosting-pull-request.yml` (channel de preview en PR). Ambos hacen
-  `setup-node` + `npm ci` antes del build.
-
-## 5. Key Commands
-
-```bash
-npm run dev     # servidor de desarrollo (Turbopack)
-npm run build   # build de producción -> genera out/  (validar siempre antes de commitear)
-npm run serve   # sirve out/ localmente para probar el export estático
-npm run lint    # eslint
-npx tsc --noEmit  # comprobación de tipos (build ya la ejecuta)
-```
-
-## 6. Open Questions
-
-1. `PENDIENTE` — Los datos del restaurante son inventados. Hay que sustituirlos por los reales
-   en `lib/restaurant.ts` (dirección, horarios, teléfono) y en `lib/menu.ts` (carta y precios).
-2. `PENDIENTE` — ¿Se mantiene `output: "export"` o se pasa a Firebase App Hosting / SSR?
-   La decisión condiciona qué APIs de Next están disponibles.
-3. `PENDIENTE` — ¿Se configura Firebase real (`.env.local` + `firestore.rules`) o se deja la
-   demo con el fallback a `localStorage`?
-4. `PENDIENTE` — El texto de la UI está **sin tildes ni caracteres especiales** (p. ej.
-   "Informacion", "resenas") para evitar problemas de codificación. Hay que revisar la
-   acentuación antes de publicar en un sitio real.
-5. `PENDIENTE` — No hay fotos reales: los platos usan emoji como marcador de posición.
-6. `PENDIENTE` — El `AGENTS.md` de la raíz es un bloque autogenerado por `next dev`
-   (reglas de agentes de Next.js). Se deja versionado a propósito para no ensuciar el árbol.
+## 6. Estado actual y registro de cambios
+Completado: catálogo + carrito + creación de pedidos (`/api/pedidos`), historial (`/pedidos`), panel administrativo con CRUD y cancelación, 404 en español, corrección de los 12 hallazgos de la evaluación con Playwright (`playwright/EVALUACION-Y-PLAN.md`), 31 tests, hook anti-push y workflows con tests.
+En progreso: configurar `NEXT_PUBLIC_API_URL` de producción como GitHub Secret.
+Pendiente: sustituir los textos ficticios del restaurante si se publica como negocio real.
