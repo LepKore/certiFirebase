@@ -105,6 +105,8 @@ export default function AdminPage() {
           <button type="button" onClick={login} className="btn-primario">
             Entrar
           </button>
+          {/* Pista para quien no tiene las credenciales */}
+          <p className="text-center text-xs text-tinta/45">para los curiosos, datos de acceso en README de backend</p>
           {error && <p role="alert">{error}</p>}
         </div>
       </div>
