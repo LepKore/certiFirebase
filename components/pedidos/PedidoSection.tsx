@@ -124,6 +124,9 @@ export default function PedidoSection() {
         </div>
 
         <input
+          id="busqueda-platos"
+          name="busqueda"
+          type="search"
           aria-label="Buscar productos"
           value={busqueda}
           onChange={(e) => setBusqueda(e.target.value)}
@@ -195,24 +198,39 @@ export default function PedidoSection() {
             )}
           </div>
 
-          <div className="card grid content-start gap-3 p-6">
+          <form
+            className="card grid content-start gap-3 p-6"
+            onSubmit={(e) => {
+              e.preventDefault();
+              confirmar();
+            }}
+          >
             <h3 className="text-lg font-bold">Datos del pedido</h3>
             <input
+              id="pedido-cliente"
+              name="cliente"
               aria-label="Nombre"
+              autoComplete="name"
+              required
               className="campo"
               placeholder="Nombre"
               value={datos.cliente}
               onChange={(e) => setDatos({ ...datos, cliente: e.target.value })}
             />
             <input
+              id="pedido-telefono"
+              name="telefono"
               aria-label="Teléfono (opcional)"
               type="tel"
+              autoComplete="tel"
               className="campo"
               placeholder="Teléfono (opcional)"
               value={datos.telefono}
               onChange={(e) => setDatos({ ...datos, telefono: e.target.value })}
             />
             <textarea
+              id="pedido-notas"
+              name="notas"
               aria-label="Notas (opcional)"
               rows={3}
               placeholder="Notas (opcional)"
@@ -221,9 +239,9 @@ export default function PedidoSection() {
               onChange={(e) => setDatos({ ...datos, notas: e.target.value })}
             />
             <button
+              type="submit"
               className="btn-primario"
               disabled={enviando || lineasVivas.length === 0 || datos.cliente.trim() === ""}
-              onClick={confirmar}
             >
               {enviando ? "Enviando..." : "Confirmar pedido"}
             </button>
@@ -233,7 +251,7 @@ export default function PedidoSection() {
               </p>
             )}
             {error && <p role="alert">{error}</p>}
-          </div>
+          </form>
         </div>
       </div>
     </section>

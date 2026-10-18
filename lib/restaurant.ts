@@ -25,39 +25,3 @@ export const valoracion = {
   estrellas: restaurante.valoracion,
   resenas: restaurante.resenas,
 } as const;
-
-/** Días con la cocina abierta. `cerrado` = no abrimos. */
-export const horarios: { dia: string; horario: string }[] = [
-  { dia: "Lunes", horario: "13:00 - 16:00 / 20:00 - 23:00" },
-  { dia: "Martes", horario: "13:00 - 16:00 / 20:00 - 23:00" },
-  { dia: "Miércoles", horario: "13:00 - 16:00 / 20:00 - 23:00" },
-  { dia: "Jueves", horario: "13:00 - 16:00 / 20:00 - 23:00" },
-  { dia: "Viernes", horario: "13:00 - 16:00 / 20:00 - 00:00" },
-  { dia: "Sábado", horario: "13:00 - 00:00" },
-  { dia: "Domingo", horario: "13:00 - 17:00" },
-];
-
-/** Franjas que se ofrecen en el formulario de reserva. */
-export const franjasReserva = [
-  "13:00",
-  "13:30",
-  "14:00",
-  "14:30",
-  "15:00",
-  "15:30",
-  "20:00",
-  "20:30",
-  "21:00",
-  "21:30",
-  "22:00",
-  "22:30",
-];
-
-export const maxComensales = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-
-export const destacadas = [
-  "Producto de mercado de temporada",
-  "Pasta fresca preparada cada mañana",
-  "Vinos naturales de pequeñas bodegas",
-  "Terraza disponible en verano",
-];

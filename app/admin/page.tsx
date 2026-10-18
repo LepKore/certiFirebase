@@ -81,21 +81,27 @@ export default function AdminPage() {
       <div className="container-resto py-20">
         <h1 className="titulo-seccion">Administración</h1>
         <div className="card mx-auto mt-8 grid max-w-md gap-4 p-6">
-          <label className="grid gap-1">
+          <label htmlFor="admin-usuario" className="grid gap-1">
             <span>Usuario</span>
             <input
+              id="admin-usuario"
+              name="usuario"
               aria-label="Usuario"
+              autoComplete="username"
               value={credenciales.usuario}
               onChange={(e) => setCredenciales({ ...credenciales, usuario: e.target.value })}
               required
               className="campo"
             />
           </label>
-          <label className="grid gap-1">
+          <label htmlFor="admin-password" className="grid gap-1">
             <span>Contraseña</span>
             <input
+              id="admin-password"
+              name="password"
               aria-label="Contraseña"
               type="password"
+              autoComplete="current-password"
               value={credenciales.password}
               onChange={(e) => setCredenciales({ ...credenciales, password: e.target.value })}
               required
@@ -124,9 +130,9 @@ export default function AdminPage() {
 
       <h2 className="titulo-seccion mt-10">Crear producto</h2>
       <form onSubmit={(e) => guardar(e)} className="card mt-4 grid gap-3 p-6 sm:grid-cols-4">
-        <input name="nombre" required placeholder="Nombre" className="campo" />
-        <input name="precio" required type="number" min="0" step="0.01" placeholder="Precio" className="campo" />
-        <input name="stock" required type="number" min="0" placeholder="Stock" className="campo" />
+        <input id="producto-nombre" name="nombre" required placeholder="Nombre" className="campo" />
+        <input id="producto-precio" name="precio" required type="number" min="0" step="0.01" placeholder="Precio" className="campo" />
+        <input id="producto-stock" name="stock" required type="number" min="0" placeholder="Stock" className="campo" />
         <button className="btn-primario">Crear</button>
       </form>
 
@@ -134,8 +140,9 @@ export default function AdminPage() {
         {productos.map((p) => (
           <li key={p.id} className="card flex flex-wrap items-center gap-3 p-4">
             <form onSubmit={(e) => guardar(e, p.id)} className="flex flex-1 flex-wrap gap-3">
-              <input aria-label={`Nombre de ${p.nombre}`} name="nombre" defaultValue={p.nombre} className="campo flex-1" />
+              <input id={`producto-${p.id}-nombre`} aria-label={`Nombre de ${p.nombre}`} name="nombre" defaultValue={p.nombre} className="campo flex-1" />
               <input
+                id={`producto-${p.id}-precio`}
                 aria-label={`Precio de ${p.nombre}`}
                 name="precio"
                 defaultValue={p.precio}
@@ -144,7 +151,7 @@ export default function AdminPage() {
                 step="0.01"
                 className="campo w-28"
               />
-              <input aria-label={`Stock de ${p.nombre}`} name="stock" defaultValue={p.stock} type="number" min="0" className="campo w-24" />
+              <input id={`producto-${p.id}-stock`} aria-label={`Stock de ${p.nombre}`} name="stock" defaultValue={p.stock} type="number" min="0" className="campo w-24" />
               <button className="btn-primario">Guardar</button>
             </form>
             <button
